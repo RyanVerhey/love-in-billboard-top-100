@@ -61,8 +61,8 @@ def fetch_all_songs():
 
 
 if __name__ == '__main__':
-    pass
     # Get list of all songs (by year) that appear in Billboard Hot 100 (no duplicats by year)
+    all_songs = fetch_all_songs()
     #   Save them in a database?
     # Get lyrics for those songs
     # Count the number of times the word 'love' appears in the lyrics and title
