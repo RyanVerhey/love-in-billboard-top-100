@@ -43,26 +43,36 @@ def get_billboard_chart_data_for_week_of(date):
     return billboard.ChartData(CHART_NAME, date=format_date(date))
 
 
+def build_songs_from_billboard_data(chart_data):
+    """Turns songs from Billboard chart data into Song objects"""
+    date = parse_date(chart_data.date)
+    songs = set()
+    for chart_entry in chart_data:
+        songs.add(
+            Song(title=chart_entry.title,
+                 artist=chart_entry.artist,
+                 chart_dates=set([date])))
+
+    return songs
+
+
 def fetch_all_songs():
-    """Returns dict of all songs separated by year"""
+    """Returns set of all fetched songs"""
     all_songs = set()
     date = copy(START_DATE)
 
     while date <= END_DATE:
-        print('Fetching chart for {}...'.format(date.strftime(DATE_FORMAT)))
+        print('Fetching chart for {}...'.format(format_date(date)))
         chart_data = get_billboard_chart_data_for_week_of(date)
+        date = parse_date(chart_data.date)
+        songs = build_songs_from_billboard_data(chart_data)
 
-        if date.strftime(DATE_FORMAT) != chart_data.date:
-            # Resetting the date to the chart date to avoid any date issues issues
-            date = datetime.datetime.strptime(chart_data.date, DATE_FORMAT)
-
-        for chart_entry in chart_data:
-            song = Song(title=chart_entry.title, artist=chart_entry.artist)
+        for song in songs:
             if song in all_songs:
-                song = find(song, all_songs)
+                existing_song = find(song, all_songs)
+                existing_song.chart_dates.update(song.chart_dates)
             else:
                 all_songs.add(song)
-            song.chart_dates.add(copy(date))
 
         # Sleeping to avoid ire of rate limiters
         time.sleep(1)
@@ -80,7 +90,7 @@ def save_songs_to_data_file(songs):
         header_row = ['title', 'artist', 'chart_dates', 'lyrics']
         writer.writerow(header_row)
         for song in songs:
-            dates = '|'.join(map(lambda s: s.strftime(DATE_FORMAT), song.chart_dates))
+            dates = '|'.join(map(lambda s: format_date(s), song.chart_dates))
             writer.writerow([song.title, song.artist, dates, song.lyrics])
     print("Finished saving.\n")
 
@@ -92,7 +102,7 @@ def fetch_songs_from_data_file():
     with open(DATA_FILE_NAME, newline='') as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
-            chart_dates = set(map(lambda date: datetime.datetime.strptime(date, DATE_FORMAT), row['chart_dates'].split('|')))
+            chart_dates = set(map(lambda date: parse_date(date), row['chart_dates'].split('|')))
             song = Song(title=row['title'],
                         artist=row['artist'],
                         chart_dates=chart_dates)
@@ -102,10 +112,6 @@ def fetch_songs_from_data_file():
 
 
 if __name__ == '__main__':
-    # Get list of all songs (by year) that appear in Billboard Hot 100 (no duplicats by year)
-    all_songs = fetch_all_songs()
-    #   Save them in a database?
-    # Get lyrics for those songs
     if not Path(f'./{DATA_FILE_NAME}').is_file():
         all_songs = fetch_all_songs()
         save_songs_to_data_file(all_songs)
