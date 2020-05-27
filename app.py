@@ -31,6 +31,35 @@ def find(item, collection):
             return None
 
 
+def fetch_all_songs():
+    """Returns dict of all songs separated by year"""
+    all_songs = set()
+    date = copy(START_DATE)
+
+    while date <= END_DATE:
+        print('Fetching chart for {}...'.format(date.strftime(DATE_FORMAT)))
+        chart_data = get_billboard_chart_data_for_week_of(date)
+
+        if date.strftime(DATE_FORMAT) != chart_data.date:
+            # Resetting the date to the chart date to avoid any date issues issues
+            date = datetime.datetime.strptime(chart_data.date, DATE_FORMAT)
+
+        for chart_entry in chart_data:
+            song = Song(title=chart_entry.title, artist=chart_entry.artist)
+            if song in all_songs:
+                song = find(song, all_songs)
+            else:
+                all_songs.add(song)
+            song.chart_dates.add(copy(date))
+
+        # Sleeping to avoid ire of rate limiters
+        time.sleep(1)
+        date = date + ONE_WEEK
+        print('Fetched.\n'.format(date.strftime(DATE_FORMAT)))
+
+    return all_songs
+
+
 if __name__ == '__main__':
     pass
     # Get list of all songs (by year) that appear in Billboard Hot 100 (no duplicats by year)
