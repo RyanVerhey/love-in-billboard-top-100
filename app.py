@@ -16,9 +16,14 @@ DATE_FORMAT = '%Y-%m-%d'
 DATA_FILE_NAME = 'all_songs.csv'
 
 
-def get_billboard_chart_data_for_week_of(date):
-    """Returns billboard.ChartData for given week"""
-    return billboard.ChartData(CHART_NAME, date=date.strftime(DATE_FORMAT))
+def parse_date(date_str):
+    """Parses date string in standard format"""
+    return datetime.datetime.strptime(date_str, DATE_FORMAT)
+
+
+def format_date(date):
+    """Formats date into standard format"""
+    return date.strftime(DATE_FORMAT)
 
 
 def find(item, collection):
@@ -31,6 +36,11 @@ def find(item, collection):
                 return existing_item
         except StopIteration:
             return None
+
+
+def get_billboard_chart_data_for_week_of(date):
+    """Returns billboard.ChartData for given week"""
+    return billboard.ChartData(CHART_NAME, date=format_date(date))
 
 
 def fetch_all_songs():
