@@ -3,11 +3,11 @@ class Song:
     Has an artist (required), title (required), lyrics (optional),
     and chart_dates, a set of all dates song appeared on the charts
     """
-    def __init__(self, title, artist, lyrics=None, chart_dates=set()):
+    def __init__(self, title, artist, lyrics=None, chart_dates=None):
         self._title = title
         self._artist = artist
         self.lyrics = lyrics
-        self.chart_dates = chart_dates
+        self.chart_dates = chart_dates or set()
 
     @property
     def title(self):
