@@ -14,6 +14,11 @@ ONE_WEEK = datetime.timedelta(days=7)
 DATE_FORMAT = '%Y-%m-%d'
 
 
+def get_billboard_chart_data_for_week_of(date):
+    """Returns billboard.ChartData for given week"""
+    return billboard.ChartData(CHART_NAME, date=date.strftime(DATE_FORMAT))
+
+
 if __name__ == '__main__':
     pass
     # Get list of all songs (by year) that appear in Billboard Hot 100 (no duplicats by year)
