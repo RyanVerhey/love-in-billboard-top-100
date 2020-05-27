@@ -1,8 +1,17 @@
+from copy import copy
 import datetime
+import time
+
+import billboard
+from song import Song
 
 
-START_DATE = datetime.datetime(1958, 8, 4)
+# The first date the Hot 100 chart is available
 CHART_NAME = 'hot-100'
+START_DATE = datetime.datetime(1958, 8, 4)
+END_DATE = datetime.datetime(2020, 5, 23)
+ONE_WEEK = datetime.timedelta(days=7)
+DATE_FORMAT = '%Y-%m-%d'
 
 
 if __name__ == '__main__':
