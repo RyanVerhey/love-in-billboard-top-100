@@ -160,8 +160,12 @@ def fetch_lyrics_for_songs(all_songs):
         return artist_dict
     songs_by_artist = reduce(reduce_by_artist, all_songs, dict())
     for artist_name, songs in songs_by_artist.items():
-        with suppress_print():
-            genius_artist = genius.search_artist(artist_name, max_songs=1)
+        try:
+            with suppress_print():
+                genius_artist = genius.search_artist(artist_name, max_songs=1)
+        except Exception as e:
+            print(f'Failed at artist {artist_name}')
+            raise e
         if not genius_artist:
             print(f'Artist not found: {artist_name}')
             save_missing_info(artist=artist_name)
@@ -176,7 +180,7 @@ def fetch_lyrics_for_songs(all_songs):
             song.lyrics = genius_song.lyrics
 
     print("All available lyrics found.")
-    return songs
+    return all_songs
 
 
 if __name__ == '__main__':
