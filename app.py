@@ -54,8 +54,8 @@ def fetch_all_songs():
 
         # Sleeping to avoid ire of rate limiters
         time.sleep(1)
-        date = date + ONE_WEEK
-        print('Fetched.\n'.format(date.strftime(DATE_FORMAT)))
+        date += ONE_WEEK
+        print('Fetched.\n')
 
     return all_songs
 
