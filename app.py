@@ -14,8 +14,8 @@ import lyricsgenius
 from song import Song
 
 
-# The first date the Hot 100 chart is available
 CHART_NAME = 'hot-100'
+# The first date the Hot 100 chart is available
 START_DATE = datetime.datetime(1958, 8, 4)
 END_DATE = datetime.datetime(2020, 5, 23)
 ONE_WEEK = datetime.timedelta(days=7)
