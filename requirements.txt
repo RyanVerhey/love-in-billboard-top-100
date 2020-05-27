@@ -1,1 +1,2 @@
 billboard.py==6.1.0
+lyricsgenius==1.8.5

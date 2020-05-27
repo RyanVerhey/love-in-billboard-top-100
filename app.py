@@ -1,9 +1,16 @@
+from contextlib import contextmanager
 from copy import copy
 import csv
 import datetime
+from functools import reduce
+import json
+import os
+from pathlib import Path
+import sys
 import time
 
 import billboard
+import lyricsgenius
 from song import Song
 
 
@@ -36,6 +43,14 @@ def find(item, collection):
                 return existing_item
         except StopIteration:
             return None
+
+
+@contextmanager
+def suppress_print():
+    """Suppresses calls to `print` inside the block"""
+    sys.stdout = open(os.devnull, 'w')
+    yield
+    sys.stdout = sys.__stdout__
 
 
 def get_billboard_chart_data_for_week_of(date):
@@ -111,12 +126,71 @@ def fetch_songs_from_data_file():
     return all_songs
 
 
+def save_missing_info(song=None, artist=None):
+    """Takes a song and missing info ('title' or 'artist') and saves that to a JSON file"""
+    try:
+        with open('missing_info.json', 'r') as jsonfile:
+            file_data = jsonfile.read()
+    except FileNotFoundError:
+        file_data = ''
+
+    if file_data:
+        json_data = json.loads(file_data)
+    else:
+        json_data = {'artists': [], 'songs': []}
+
+    if artist and not song:
+        json_data['artists'].append(artist)
+    elif song and artist:
+        json_data['songs'].append({'title': song, 'artist': artist})
+
+    with open('missing_info.json', 'w') as jsonfile:
+        jsonfile.write(json.dumps(json_data))
+
+
+def fetch_lyrics_for_songs(all_songs):
+    """Fetches lyrics for all supplied songs"""
+    all_songs = copy(all_songs)
+    print("Finding lyrics...")
+    genius = lyricsgenius.Genius(os.environ['GENIUS_ACCESS_TOKEN'])
+    def reduce_by_artist(artist_dict, song):
+        if song.artist not in artist_dict.keys():
+            artist_dict[song.artist] = set()
+        artist_dict[song.artist].add(song)
+        return artist_dict
+    songs_by_artist = reduce(reduce_by_artist, all_songs, dict())
+    for artist_name, songs in songs_by_artist.items():
+        with suppress_print():
+            genius_artist = genius.search_artist(artist_name, max_songs=1)
+        if not genius_artist:
+            print(f'Artist not found: {artist_name}')
+            save_missing_info(artist=artist_name)
+            continue
+        for song in songs:
+            with suppress_print():
+                genius_song = genius.search_song(song.title, genius_artist.name)
+            if not genius_song:
+                print(f'Song not found: {song.title} by {artist_name}')
+                save_missing_info(song=song.title, artist=artist_name)
+                continue
+            song.lyrics = genius_song.lyrics
+
+    print("All available lyrics found.")
+    return songs
+
+
 if __name__ == '__main__':
     if not Path(f'./{DATA_FILE_NAME}').is_file():
         all_songs = fetch_all_songs()
         save_songs_to_data_file(all_songs)
     else:
         all_songs = fetch_songs_from_data_file()
+    if not any(map(lambda song: song.lyrics, all_songs)):
+        pass
+        # only getting lyric info if not already available
+        all_songs = fetch_lyrics_for_songs(all_songs)
+        # Saving songs with lyrics to data file
+        # save_songs_to_data_file(all_songs)
     # Saving song data with lyrics
     # Count the number of times the word 'love' appears in the lyrics and title
     # Output CSV number of times 'love' appears for each year
