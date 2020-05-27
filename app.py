@@ -19,6 +19,18 @@ def get_billboard_chart_data_for_week_of(date):
     return billboard.ChartData(CHART_NAME, date=date.strftime(DATE_FORMAT))
 
 
+def find(item, collection):
+    """Finds the first matching existing item, otherwise returns None"""
+    iterable = iter(collection)
+    while True:
+        try:
+            existing_item = next(iterable)
+            if existing_item == item:
+                return existing_item
+        except StopIteration:
+            return None
+
+
 if __name__ == '__main__':
     pass
     # Get list of all songs (by year) that appear in Billboard Hot 100 (no duplicats by year)
