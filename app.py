@@ -1,4 +1,5 @@
 from copy import copy
+import csv
 import datetime
 import time
 
@@ -12,6 +13,7 @@ START_DATE = datetime.datetime(1958, 8, 4)
 END_DATE = datetime.datetime(2020, 5, 23)
 ONE_WEEK = datetime.timedelta(days=7)
 DATE_FORMAT = '%Y-%m-%d'
+DATA_FILE_NAME = 'all_songs.csv'
 
 
 def get_billboard_chart_data_for_week_of(date):
@@ -60,10 +62,45 @@ def fetch_all_songs():
     return all_songs
 
 
+def save_songs_to_data_file(songs):
+    """Saves iterable of songs to CSV file"""
+    print("Saving songs to data file...")
+    with open(DATA_FILE_NAME, 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        header_row = ['title', 'artist', 'chart_dates', 'lyrics']
+        writer.writerow(header_row)
+        for song in songs:
+            dates = '|'.join(map(lambda s: s.strftime(DATE_FORMAT), song.chart_dates))
+            writer.writerow([song.title, song.artist, dates, song.lyrics])
+    print("Finished saving.\n")
+
+
+def fetch_songs_from_data_file():
+    """Fetches and creates songs from a datafile"""
+    print('Fetching songs from data file...')
+    all_songs = set()
+    with open(DATA_FILE_NAME, newline='') as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            chart_dates = set(map(lambda date: datetime.datetime.strptime(date, DATE_FORMAT), row['chart_dates'].split('|')))
+            song = Song(title=row['title'],
+                        artist=row['artist'],
+                        chart_dates=chart_dates)
+            all_songs.add(song)
+    print('Finished fetching.\n')
+    return all_songs
+
+
 if __name__ == '__main__':
     # Get list of all songs (by year) that appear in Billboard Hot 100 (no duplicats by year)
     all_songs = fetch_all_songs()
     #   Save them in a database?
     # Get lyrics for those songs
+    if not Path(f'./{DATA_FILE_NAME}').is_file():
+        all_songs = fetch_all_songs()
+        save_songs_to_data_file(all_songs)
+    else:
+        all_songs = fetch_songs_from_data_file()
+    # Saving song data with lyrics
     # Count the number of times the word 'love' appears in the lyrics and title
     # Output CSV number of times 'love' appears for each year
