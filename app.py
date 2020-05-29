@@ -195,7 +195,7 @@ if __name__ == '__main__':
         # only getting lyric info if not already available
         all_songs = fetch_lyrics_for_songs(all_songs)
         # Saving songs with lyrics to data file
-        # save_songs_to_data_file(all_songs)
+        save_songs_to_data_file(all_songs)
     # Saving song data with lyrics
     # Count the number of times the word 'love' appears in the lyrics and title
     # Output CSV number of times 'love' appears for each year
