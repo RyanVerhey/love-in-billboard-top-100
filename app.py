@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from collections import OrderedDict
 from copy import copy
 import csv
 import datetime
@@ -185,6 +186,28 @@ def fetch_lyrics_for_songs(all_songs):
     return all_songs
 
 
+def find_occurrences_of_pattern_by_year(songs, pattern):
+    def organize_by_year(year_dict, song):
+        years = set(map(lambda d: d.year, song.chart_dates))
+        for year in years:
+            if year not in year_dict.keys():
+                year_dict[year] = 0
+            if song.occurs_in_title_or_lyrics(pattern):
+                year_dict[year] += 1
+        return year_dict
+    return reduce(organize_by_year, songs, dict())
+
+
+def save_pattern_occurrence_data_to_data_file(occurrences_by_year):
+    ordered_occurrences_by_year = OrderedDict(occurrences_by_year.items())
+    with open('results.csv', 'w') as csv_file:
+        writer = csv.writer(csv_file)
+        header_row = ['year', 'occurrences']
+        writer.writerow(header_row)
+        for year, num_of_occurrences in ordered_occurrences_by_year.items():
+            writer.writerow((year, num_of_occurrences))
+
+
 if __name__ == '__main__':
     if not Path(f'./{DATA_FILE_NAME}').is_file():
         all_songs = fetch_all_songs()
@@ -197,6 +220,8 @@ if __name__ == '__main__':
         all_songs = fetch_lyrics_for_songs(all_songs)
         # Saving songs with lyrics to data file
         save_songs_to_data_file(all_songs)
-    # Saving song data with lyrics
     # Count the number of times the word 'love' appears in the lyrics and title
+    love_by_year = find_occurrences_of_pattern_by_year(all_songs, r'love')
     # Output CSV number of times 'love' appears for each year
+    save_pattern_occurrence_data_to_data_file(love_by_year)
+
