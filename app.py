@@ -121,7 +121,8 @@ def fetch_songs_from_data_file():
             chart_dates = set(map(lambda date: parse_date(date), row['chart_dates'].split('|')))
             song = Song(title=row['title'],
                         artist=row['artist'],
-                        chart_dates=chart_dates)
+                        chart_dates=chart_dates,
+                        lyrics=row['lyrics'])
             all_songs.add(song)
     print('Finished fetching.\n')
     return all_songs
