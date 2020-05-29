@@ -18,6 +18,7 @@ from song import Song
 CHART_NAME = 'hot-100'
 # The first date the Hot 100 chart is available
 START_DATE = datetime.datetime(1958, 8, 4)
+# When I started writing script
 END_DATE = datetime.datetime(2020, 5, 23)
 ONE_WEEK = datetime.timedelta(days=7)
 DATE_FORMAT = '%Y-%m-%d'
