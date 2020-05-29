@@ -21,6 +21,7 @@ END_DATE = datetime.datetime(2020, 5, 23)
 ONE_WEEK = datetime.timedelta(days=7)
 DATE_FORMAT = '%Y-%m-%d'
 DATA_FILE_NAME = 'all_songs.csv'
+csv.field_size_limit(sys.maxsize)
 
 
 def parse_date(date_str):
