@@ -93,7 +93,7 @@ def fetch_all_songs():
                 all_songs.add(song)
 
         # Sleeping to avoid ire of rate limiters
-        time.sleep(1)
+        time.sleep(10)
         date += ONE_WEEK
         print('Fetched.\n')
 
@@ -182,6 +182,8 @@ def fetch_lyrics_for_songs(all_songs):
                 save_missing_info(song=song.title, artist=artist_name)
                 continue
             song.lyrics = genius_song.lyrics
+            # Sleeping to avoid ire of rate limiters
+            time.sleep(10)
 
     print("All available lyrics found.")
     return all_songs
