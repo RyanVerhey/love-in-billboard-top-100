@@ -226,7 +226,7 @@ def fetch_last_chart_ran():
     else:
         with open('last_chart_ran.txt', 'r') as file:
             str_date = file.read()
-            return datetime.strptime(strdate, '%Y-%m-%d')
+            return datetime.datetime.strptime(str_date, '%Y-%m-%d')
 
 
 if __name__ == '__main__':
