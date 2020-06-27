@@ -77,7 +77,7 @@ def build_songs_from_billboard_data(chart_data):
 def fetch_all_songs(songs=set()):
     """Returns set of all fetched songs"""
     all_songs = songs
-    date = fetch_last_chart_ran() or copy(START_DATE)
+    date = (fetch_last_chart_ran() + ONE_WEEK) or copy(START_DATE)
 
     while date <= END_DATE:
         print('Fetching chart for {}...'.format(format_date(date)))
