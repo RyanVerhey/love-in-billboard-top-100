@@ -119,6 +119,8 @@ def fetch_songs_from_data_file():
     """Fetches and creates songs from a datafile"""
     print('Fetching songs from data file...')
     all_songs = set()
+    if not Path(f'./{DATA_FILE_NAME}').is_file():
+        return all_songs
     with open(DATA_FILE_NAME, newline='') as csv_file:
         reader = csv.DictReader(csv_file)
         for row in reader:
