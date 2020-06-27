@@ -74,8 +74,9 @@ def build_songs_from_billboard_data(chart_data):
     return songs
 
 
-def fetch_all_songs(all_songs=set()):
+def fetch_all_songs(songs=set()):
     """Returns set of all fetched songs"""
+    all_songs = songs
     date = fetch_last_chart_ran() or copy(START_DATE)
 
     while date <= END_DATE:
@@ -228,7 +229,7 @@ def fetch_last_chart_ran():
 
 if __name__ == '__main__':
     last_chart_ran = fetch_last_chart_ran()
-    if not last_chart_ran or (last_chart_ran and last_chart_ran < END_DATE)
+    if not last_chart_ran or (last_chart_ran and last_chart_ran < END_DATE):
         all_songs = fetch_all_songs(songs=fetch_songs_from_data_file())
     else:
         all_songs = fetch_songs_from_data_file()
