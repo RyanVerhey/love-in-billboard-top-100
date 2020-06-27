@@ -78,6 +78,7 @@ def fetch_all_songs():
     """Returns set of all fetched songs"""
     all_songs = set()
     date = copy(START_DATE)
+    date = fetch_last_chart_ran() or copy(START_DATE)
 
     while date <= END_DATE:
         print('Fetching chart for {}...'.format(format_date(date)))
@@ -92,6 +93,7 @@ def fetch_all_songs():
             else:
                 all_songs.add(song)
 
+        update_last_chart_ran(date)
         # Sleeping to avoid ire of rate limiters
         time.sleep(20)
         date += ONE_WEEK
@@ -211,10 +213,24 @@ def save_pattern_occurrence_data_to_data_file(occurrences_by_year):
             writer.writerow((year, num_of_occurrences))
 
 
+def update_last_chart_ran(date):
+    with open('last_chart_ran.txt', 'w') as file:
+        file.write(date.strftime('%Y-%m-%d'))
+
+
+def fetch_last_chart_ran():
+    if not Path('./last_chart_ran.txt').is_file():
+        return None
+    else:
+        with open('last_chart_ran.txt', 'r') as file:
+            str_date = file.read()
+            return datetime.strptime(strdate, '%Y-%m-%d')
+
+
 if __name__ == '__main__':
-    if not Path(f'./{DATA_FILE_NAME}').is_file():
+    last_chart_ran = fetch_last_chart_ran()
+    if not last_chart_ran or (last_chart_ran and last_chart_ran < END_DATE)
         all_songs = fetch_all_songs()
-        save_songs_to_data_file(all_songs)
     else:
         all_songs = fetch_songs_from_data_file()
     if not any(map(lambda song: song.lyrics, all_songs)):
