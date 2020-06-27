@@ -1,3 +1,4 @@
 __pycache__/*
 *.csv
 missing_info.json
+last_chart_ran.txt
